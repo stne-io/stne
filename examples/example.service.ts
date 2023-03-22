@@ -10,4 +10,10 @@ export class ExampleService {
       resolve('this is from service.ex1');
     });
   }
+
+  public getThree(id: number, name: string): Promise<string> {
+    return new Promise((resolve) => {
+      resolve(`${id} : ${name}`);
+    });
+  }
 }
