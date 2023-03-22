@@ -3,6 +3,6 @@ import { GlobalModules } from './app-modules.ts';
 
 const app: Application = new Application({ modules: [GlobalModules] });
 
-const PORT = 8000;
+const PORT = 8001;
 
 await app.run(PORT);
