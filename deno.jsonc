@@ -1,0 +1,25 @@
+{
+  "lint": {
+    "files": {
+      "include": ["common/", "injector/", "tests/", "examples/"],
+      "exclude": []
+    },
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo"],
+      "exclude": ["no-unused-vars"]
+    }
+  },
+  "fmt": {
+    "files": {
+      "include": ["common/", "injector/", "tests/", "examples/"],
+      "exclude": []
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 100,
+      "indentWidth": 2,
+      "singleQuote": true
+    }
+  }
+}
