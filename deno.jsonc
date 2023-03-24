@@ -1,7 +1,7 @@
 {
   "lint": {
     "files": {
-      "include": ["src/", "test/"],
+      "include": ["common/", "injector/", "tests/", "examples/"],
       "exclude": []
     },
     "rules": {
