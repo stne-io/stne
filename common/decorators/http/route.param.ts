@@ -36,6 +36,7 @@ export function Header(key?: string): ParameterDecorator {
 
 export const defineRouteParamDecorator =
   (argType: RouteParamType, paramKey?: string): ParameterDecorator =>
+  // deno-lint-ignore no-explicit-any
   (target: any, key: string | symbol, index: number): void => {
     const meta: ControllerMetadata = getControllerMeta(target) ?? defaultMetadata();
 

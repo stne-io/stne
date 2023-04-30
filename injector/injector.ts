@@ -40,7 +40,7 @@ export function setInjectionMetadata(Type: ConstructableFunc, metadata: Injectio
 
 export function bootstrap<T>(
   Type: ConstructableFunc<T>,
-  overrides = new Map<ConstructableFunc, ConstructableFunc>()
+  overrides = new Map<ConstructableFunc, ConstructableFunc>(),
 ): T {
   return new Injector(overrides).bootstrap(Type);
 }
@@ -57,16 +57,19 @@ export class Injector {
     console.log(`Module ${Type.name} is resolved.`);
 
     return {
-      controllers: (moduleMeta.controllers || [])?.reduce((prev, curr): Array<ControllerContainer> => {
-        this.resolve([curr]);
-        const k = this.resolved.get(curr);
-        if (!k) {
+      controllers: (moduleMeta.controllers || [])?.reduce(
+        (prev, curr): Array<ControllerContainer> => {
+          this.resolve([curr]);
+          const k = this.resolved.get(curr);
+          if (!k) {
+            return prev;
+          }
+          const meta = Reflect.getOwnMetadata(CONTROLLER_META_PROPKEY, curr) as ControllerMetadata;
+          prev.push({ origin: curr, instance: k, meta });
           return prev;
-        }
-        const meta = Reflect.getOwnMetadata(CONTROLLER_META_PROPKEY, curr) as ControllerMetadata;
-        prev.push({ origin: curr, instance: k, meta });
-        return prev;
-      }, [] as Array<ControllerContainer>),
+        },
+        [] as Array<ControllerContainer>,
+      ),
     };
   }
 
@@ -83,7 +86,9 @@ export class Injector {
   }
 
   private resolve(Types: ConstructableFunc[]): void {
-    const unresolved = new Map([...this.discoverDependencies(Types)].filter(([T]) => !this.resolved.has(T)));
+    const unresolved = new Map(
+      [...this.discoverDependencies(Types)].filter(([T]) => !this.resolved.has(T)),
+    );
 
     while (unresolved.size > 0) {
       const nextResolvable = [...unresolved].find(([, meta]) =>
@@ -91,7 +96,9 @@ export class Injector {
       );
       if (!nextResolvable) {
         const unresolvable = [...unresolved]
-          .map(([Type, { dependencies }]) => `${Type.name} (-> ${dependencies.map((D) => D.name).join(',')})`)
+          .map(([Type, { dependencies }]) =>
+            `${Type.name} (-> ${dependencies.map((D) => D.name).join(',')})`
+          )
           .join(', ');
         throw new Error(`Dependency cycle detected: Failed to resolve ${unresolvable}`);
       }
@@ -107,7 +114,10 @@ export class Injector {
   }
 
   private getInjectionMetadata(Type: ConstructableFunc): InjectionMetadata {
-    const metadata: InjectionMetadata | undefined = Reflect.getOwnMetadata(CONTROLLER_META_PROPKEY, Type);
+    const metadata: InjectionMetadata | undefined = Reflect.getOwnMetadata(
+      CONTROLLER_META_PROPKEY,
+      Type,
+    );
     if (!metadata) {
       throw new TypeError(`Type ${Type.name} is not injectable`);
     }
@@ -119,7 +129,8 @@ export class Injector {
   }
 
   private getDependencies(Type: ConstructableFunc): ConstructableFunc[] {
-    const dependencies: ConstructableFunc[] = Reflect.getOwnMetadata('design:paramtypes', Type) || [];
+    const dependencies: ConstructableFunc[] = Reflect.getOwnMetadata('design:paramtypes', Type) ||
+      [];
 
     return dependencies.map((Dep) => {
       if (this.overrides.has(Dep) && this.overrides.get(Dep) !== Type) {
@@ -131,9 +142,12 @@ export class Injector {
   }
 
   private discoverDependencies(
-    Types: ConstructableFunc[]
+    Types: ConstructableFunc[],
   ): Map<ConstructableFunc, InjectionMetadata & { dependencies: ConstructableFunc[] }> {
-    const discovered = new Map<ConstructableFunc, InjectionMetadata & { dependencies: ConstructableFunc[] }>();
+    const discovered = new Map<
+      ConstructableFunc,
+      InjectionMetadata & { dependencies: ConstructableFunc[] }
+    >();
     const undiscovered = new Set(Types);
 
     while (undiscovered.size > 0) {

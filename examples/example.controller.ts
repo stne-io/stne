@@ -29,14 +29,16 @@ export class ExampleController {
   @ApiEndpoint('/getTest3/:id', HttpMethod.GET)
   public getTest3(
     @Param('id') id: number,
+    // deno-lint-ignore no-explicit-any
     @Header('accept') header: any,
-    @Query('name') name: string
+    @Query('name') name: string,
   ): Promise<string> {
     console.log('accept', header);
     return this.service.getThree(id, name);
   }
 
   @ApiEndpoint('/postTest1/:id', HttpMethod.POST)
+  // deno-lint-ignore no-explicit-any
   public postTest1(@Body() body: any): Promise<string> {
     return new Promise((resolve) => {
       resolve(`postTest1 ${body}`);

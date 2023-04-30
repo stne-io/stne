@@ -35,7 +35,8 @@ export function defaultMetadata(): ControllerMetadata {
 
 export function Controller<T>(prefix = '/') {
   return (target: ConstructableFunc<T>): void => {
-    const meta: ControllerMetadata = Reflect.getMetadata(CONTROLLER_META_PROPKEY, target) ?? defaultMetadata();
+    const meta: ControllerMetadata = Reflect.getMetadata(CONTROLLER_META_PROPKEY, target) ??
+      defaultMetadata();
     meta.prefix = prefix;
     Reflect.defineMetadata(CONTROLLER_META_PROPKEY, meta, target);
   };
